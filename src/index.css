@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  --color-primary: #FF85A1;
+  --color-secondary: #6B9AC4;
+  --color-bg-app: #FDF7F8;
+  --color-text-main: #4A4A4A;
+  --color-text-light: #8E8E8E;
+  --color-border: #F0F0F0;
+}
+
+body {
+  background-color: #E5E5E5;
+  color: var(--color-text-main);
+}
