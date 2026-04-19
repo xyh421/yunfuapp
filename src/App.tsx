@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   BookOpen, 
@@ -12,9 +12,7 @@ import {
   Info, 
   ChevronRight, 
   AlertCircle,
-  Coffee,
-  Apple,
-  Wind
+  Dumbbell
 } from 'lucide-react';
 
 // --- Constants & Data ---
@@ -29,167 +27,214 @@ interface MonthData {
   diet: {
     keyNutrients: string[];
     recommendedFoods: { name: string; benefit: string; icon: string }[];
-    breakfast: string;
-    lunch: string;
-    dinner: string;
-    snack: string;
+    meals: {
+      type: string;
+      icon: string;
+      items: { name: string; desc: string; icon: string }[];
+    }[];
   };
+  exercises: {
+    name: string;
+    type: string;
+    desc: string;
+    stats?: { label: string; value: string }[];
+    icon: string;
+  }[];
 }
 
 const PREGNANCY_DATA: MonthData[] = [
   {
     month: 1,
     symptoms: [
-      {
-        title: "恶心呕吐 (孕吐)",
-        reason: "主要由于体内HCG（人绒毛膜促性腺激素）水平迅速升高，以及雌激素的变化导致胃肠道平滑肌松弛。",
-        tips: ["少量多餐", "早晨起床前吃几块苏打饼干", "避免油腻辛辣饮食"]
-      },
-      {
-        title: "乳房胀痛",
-        reason: "激素变化使乳腺组织开始发育，为未来的哺乳做准备。",
-        tips: ["更换舒适的全棉内衣", "温水淋浴缓解"]
-      }
+      { title: "恶心呕吐 (孕吐)", reason: "HCG水平迅速升高及激素变化。", tips: ["少量多餐", "早起吃苏打饼干"] },
+      { title: "乳房胀痛", reason: "激素变化使乳腺发育。", tips: ["全棉舒适内衣"] }
     ],
     diet: {
       keyNutrients: ["叶酸", "蛋白质"],
-      recommendedFoods: [
-        { name: "猕猴桃", benefit: "丰富叶酸", icon: "🥝" },
-        { name: "全麦面包", benefit: "缓解孕吐", icon: "🍞" },
-        { name: "深海鱼", benefit: "优质蛋白", icon: "🐟" }
-      ],
-      breakfast: "燕麦粥配核桃 + 水煮蛋",
-      lunch: "清蒸鱼 + 炒青菜 + 杂粮饭",
-      dinner: "西红柿炖豆腐 + 小份米饭",
-      snack: "酸奶 + 几颗坚果"
-    }
+      recommendedFoods: [{ name: "猕猴桃", benefit: "丰富叶酸", icon: "🥝" }, { name: "全麦面包", benefit: "缓解孕吐", icon: "🍞" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "核桃燕麦粥", desc: "补充脑动力", icon: "🥣" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "清蒸鲈鱼", desc: "DHA发育", icon: "🐟" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "低脂酸奶", desc: "调节肠胃", icon: "🥛" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "番茄炖豆腐", desc: "补钙", icon: "🍲" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "苏打饼干", desc: "中和胃酸", icon: "🍘" }] }
+      ]
+    },
+    exercises: [
+      { name: "轻快散步", type: "有氧", desc: "促进血液循环。", stats: [{ label: "距离", value: "1km" }, { label: "时长", value: "15min" }], icon: "🚶‍♀️" },
+      { name: "足部伸展", type: "放松", desc: "缓解脚部疲劳。", icon: "🧘‍♀️" }
+    ]
   },
   {
     month: 2,
-    symptoms: [
-      {
-        title: "极度疲劳",
-        reason: "身体在全力“制造”胎盘，耗费巨大的能量。同时孕酮水平升高会让人感到嗜睡。",
-        tips: ["保证充足睡眠", "中午小憩20-30分钟"]
-      },
-      {
-        title: "尿频",
-        reason: "子宫开始增大并压迫膀胱。",
-        tips: ["白天多喝水，睡前2小时减少饮水"]
-      }
-    ],
+    symptoms: [{ title: "极度疲劳", reason: "身体全力制造胎盘。", tips: ["充足睡眠"] }],
     diet: {
       keyNutrients: ["镁", "维生素B6"],
-      recommendedFoods: [
-        { name: "香蕉", benefit: "缓解抽筋和呕吐", icon: "🍌" },
-        { name: "核桃", benefit: "补脑补锌", icon: "🥜" },
-        { name: "菠菜", benefit: "铁质与叶酸", icon: "🥬" }
-      ],
-      breakfast: "香蕉松饼 + 纯牛奶",
-      lunch: "菠菜猪肝汤 + 炒时蔬 + 米饭",
-      dinner: "鸡丝面 + 凉拌黄瓜",
-      snack: "苏打饼干 (防孕吐)"
-    }
+      recommendedFoods: [{ name: "香蕉", benefit: "缓解呕吐", icon: "🍌" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "黑米红豆粥", desc: "补血", icon: "🥣" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "冬瓜排骨汤", desc: "补钙", icon: "🍲" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "虾仁跑蛋", desc: "补蛋白", icon: "🍳" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "无糖豆浆", desc: "大豆蛋白", icon: "🥛" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "海苔脆", desc: "补微量元素", icon: "🍘" }] }
+      ]
+    },
+    exercises: [
+      { name: "日常走动", type: "有氧", desc: "维持基本体能。", stats: [{ label: "距离", value: "1.5km" }, { label: "时长", value: "20min" }], icon: "👟" },
+      { name: "凯格尔锻炼", type: "盆底肌", desc: "有助于产后恢复。", icon: "🤰" }
+    ]
   },
   {
     month: 3,
-    symptoms: [
-      {
-        title: "情绪波动",
-        reason: "大幅波动的激素水平加上对未知的担忧。",
-        tips: ["多与家人沟通", "听轻柔音乐"]
-      }
-    ],
+    symptoms: [{ title: "情绪波动", reason: "激素波动。", tips: ["沟通、音乐"] }],
     diet: {
       keyNutrients: ["钙", "维生素A"],
-      recommendedFoods: [
-        { name: "胡萝卜", benefit: "眼部发育", icon: "🥕" },
-        { name: "豆腐", benefit: "植物钙源", icon: "🍲" },
-        { name: "草莓", benefit: "维生素C", icon: "🍓" }
-      ],
-      breakfast: "红薯粥 + 芝麻酱花卷",
-      lunch: "胡萝卜炒肉丝 + 虾皮紫菜汤",
-      dinner: "清炖排骨汤面",
-      snack: "苹果片"
-    }
+      recommendedFoods: [{ name: "胡萝卜", benefit: "眼部发育", icon: "🥕" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "南瓜粥", desc: "舒缓脾胃", icon: "🥣" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "彩椒炒肉丝", desc: "维C充足", icon: "🍛" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "清蒸娃娃菜", desc: "清淡易消化", icon: "🥬" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "新鲜牛奶", desc: "补钙", icon: "🥛" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "新鲜水果", desc: "补充维生素", icon: "🍓" }] }
+      ]
+    },
+    exercises: [
+      { name: "慢速散步", type: "有氧", desc: "缓解情绪不稳。", stats: [{ label: "距离", value: "1km" }, { label: "时长", value: "15min" }], icon: "🌳" },
+      { name: "颈部放松", type: "伸展", desc: "减轻肩颈压力。", icon: "🧘" }
+    ]
   },
-  // Simplified for other months to maintain performance/size, but covering 1-10 (40 weeks)
   {
     month: 4,
-    symptoms: [
-      { title: "胃口大增", reason: "孕早期不适减轻，胎儿进入快速生长期。", tips: ["控制糖分摄入", "均衡营养"] }
-    ],
+    symptoms: [{ title: "胃口大增", reason: "不适减轻，快速生长期。", tips: ["控制糖分"] }],
     diet: {
       keyNutrients: ["铁", "锌"],
-      recommendedFoods: [{ name: "牛肉", benefit: "补铁", icon: "🥩" }, { name: "黑木耳", benefit: "补血", icon: "🍄" }],
-      breakfast: "牛奶 + 全麦面包片", lunch: "杭椒牛柳 + 炒菜心", dinner: "银耳雪梨汤 + 蔬菜卷", snack: "腰果"
-    }
+      recommendedFoods: [{ name: "牛肉", benefit: "补铁", icon: "🥩" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "鸡蛋三明治", desc: "均衡开启", icon: "🥪" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "黑椒牛柳", desc: "铁质丰富", icon: "🥩" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "银耳汤", desc: "温润补气", icon: "🥣" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "蓝莓", desc: "明目抗氧", icon: "🫐" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "混合坚果", desc: "补脑", icon: "🥜" }] }
+      ]
+    },
+    exercises: [
+      { name: "快步走", type: "有氧", desc: "提升心肺活力。", stats: [{ label: "距离", value: "2km" }, { label: "速度", value: "5km/h" }, { label: "时长", value: "25min" }], icon: "🏃‍♀️" },
+      { name: "孕妇瑜伽", type: "耐力", desc: "柔韧身心。", icon: "🕉️" }
+    ]
   },
   {
     month: 5,
-    symptoms: [
-      { title: "胎动感", reason: "胎儿肌肉力量增强，动作能被触知。", tips: ["开始数胎动", "温柔胎教"] }
-    ],
+    symptoms: [{ title: "胎动感", reason: "胎儿力量增强。", tips: ["轻柔胎教"] }],
     diet: {
       keyNutrients: ["DHA", "钙"],
-      recommendedFoods: [{ name: "三文鱼", benefit: "脑部发育", icon: "🍣" }, { name: "牛奶", benefit: "骨骼钙质", icon: "🥛" }],
-      breakfast: "豆浆 + 菜包", lunch: "红焖鱼块 + 什锦豆羹", dinner: "番茄牛肉面", snack: "火龙果"
-    }
+      recommendedFoods: [{ name: "三文鱼", benefit: "智力发育", icon: "🍣" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "豆浆蔬菜卷", desc: "蛋白充沛", icon: "🥙" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "清蒸鱼块", desc: "DHA储备", icon: "🐟" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "番茄蛋汤面", desc: "开胃能量", icon: "🍜" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "希腊酸奶", desc: "肠道健康", icon: "🥛" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "火龙果", desc: "膳食纤维", icon: "🌵" }] }
+      ]
+    },
+    exercises: [
+      { name: "规律散步", type: "有氧", desc: "黄金体能期。", stats: [{ label: "距离", value: "3km" }, { label: "时长", value: "35min" }], icon: "👣" },
+      { name: "靠墙深蹲", type: "力量", desc: "增强腿部支撑力。", icon: "🏋️‍♀️" }
+    ]
   },
   {
     month: 6,
-    symptoms: [
-      { title: "便秘/痔疮", reason: "子宫压迫肠道，肠蠕动减慢。", tips: ["多吃膳食纤维", "多喝水"] }
-    ],
+    symptoms: [{ title: "便秘困扰", reason: "子宫压迫肠道。", tips: ["多喝水", "膳食纤维"] }],
     diet: {
       keyNutrients: ["粗纤维", "钾"],
-      recommendedFoods: [{ name: "玉米", benefit: "促进排便", icon: "🌽" }, { name: "红薯", benefit: "通便排毒", icon: "🍠" }],
-      breakfast: "玉米牛奶粥", lunch: "清炖鸡汤 + 凉拌秋葵", dinner: "什锦炒饭", snack: "梨"
-    }
+      recommendedFoods: [{ name: "玉米", benefit: "促排便", icon: "🌽" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "蒸红薯", desc: "润肠通便", icon: "🍠" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "蒜蓉西兰花", desc: "丰富矿物质", icon: "🥦" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "什锦凉拌菜", desc: "清爽解腻", icon: "🥗" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "蒸玉米", desc: "粗粮营养", icon: "🌽" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "梨", desc: "生津止渴", icon: "🍐" }] }
+      ]
+    },
+    exercises: [
+      { name: "动态散步", type: "有氧", desc: "配合呼吸促进排便。", stats: [{ label: "距离", value: "2.5km" }, { label: "时长", value: "40min" }], icon: "🎈" },
+      { name: "猫式伸展", type: "背部", desc: "缓解背部紧绷。", icon: "🐈" }
+    ]
   },
   {
     month: 7,
-    symptoms: [
-      { title: "水肿", reason: "子宫压迫下腔静脉，影响血液回流。", tips: ["垫高腿部睡觉", "穿宽松鞋子"] }
-    ],
+    symptoms: [{ title: "身体水肿", reason: "血液回流受阻。", tips: ["垫高腿部"] }],
     diet: {
-      keyNutrients: ["蛋白质", "适度盐分"],
-      recommendedFoods: [{ name: "冬瓜", benefit: "利尿消肿", icon: "🍈" }, { name: "红豆", benefit: "健脾除湿", icon: "🫘" }],
-      breakfast: "红豆花生汤", lunch: "冬瓜排骨汤 + 虾仁豆角", dinner: "全麦馒头 + 炒蛋", snack: "橙子"
-    }
+      keyNutrients: ["蛋白质", "钠控制"],
+      recommendedFoods: [{ name: "冬瓜", benefit: "利尿消肿", icon: "🍈" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "红豆汤", desc: "健脾祛湿", icon: "🥣" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "豆腐排骨煲", desc: "补充钙质", icon: "🍲" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "虾皮冬瓜汤", desc: "消肿补鲜", icon: "🥣" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "橙子", desc: "维C活力", icon: "🍊" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "无糖果冻", desc: "轻负担感", icon: "🍮" }] }
+      ]
+    },
+    exercises: [
+      { name: "消肿行走", type: "有氧", desc: "缓解静脉曲张压力。", stats: [{ label: "距离", value: "2km" }, { label: "时长", value: "30min" }], icon: "🌊" },
+      { name: "盆骨倾斜", type: "缓痛", desc: "纠正重心偏移感。", icon: "🔄" }
+    ]
   },
   {
     month: 8,
-    symptoms: [
-      { title: "呼吸短促", reason: "增大的子宫顶向膈肌，减少肺部扩张空间。", tips: ["减慢动作速度", "保持坐姿端正"] }
-    ],
+    symptoms: [{ title: "气短心慌", reason: "子宫顶向膈肌。", tips: ["动作变缓"] }],
     diet: {
-      keyNutrients: ["磷", "维生素D"],
-      recommendedFoods: [{ name: "鸡蛋", benefit: "全能营养", icon: "🥚" }, { name: "虾皮", benefit: "极高含钙", icon: "🦐" }],
-      breakfast: "鸡蛋奶酪三明治", lunch: "海米冬瓜汤 + 香菇滑鸡", dinner: "南瓜粥", snack: "小西红柿"
-    }
+      keyNutrients: ["磷", "钙"],
+      recommendedFoods: [{ name: "鸡蛋", benefit: "营养源", icon: "🥚" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "鸡蛋嫩饼", desc: "能量充足", icon: "🥞" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "滑鸡片", desc: "高质量蛋白", icon: "🍗" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "丝瓜蛋汤", desc: "清心安神", icon: "🥣" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "无花果", desc: "润燥明目", icon: "🥯" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "小番茄", desc: "清爽补水", icon: "🍅" }] }
+      ]
+    },
+    exercises: [
+      { name: "慢速漫步", type: "有氧", desc: "晚期坚持走动。", stats: [{ label: "距离", value: "1km" }, { label: "时长", value: "20min" }], icon: "🐌" },
+      { name: "骨盆球运动", type: "柔韧", desc: "放松下半身区域。", icon: "🔮" }
+    ]
   },
   {
     month: 9,
-    symptoms: [
-      { title: "背痛/耻骨痛", reason: "身体分泌松弛素为分娩做准备，重心前移。", tips: ["托腹带缓解", "侧卧睡姿"] }
-    ],
+    symptoms: [{ title: "背部沉重", reason: "重心极度前倾。", tips: ["侧卧、托腹带"] }],
     diet: {
-      keyNutrients: ["维生素K", "能量"],
-      recommendedFoods: [{ name: "西兰花", benefit: "防止凝血紊乱", icon: "🥦" }, { name: "燕麦", benefit: "持久能量", icon: "🥣" }],
-      breakfast: "牛奶麦片 + 坚果", lunch: "西兰花炒肉片 + 鱼香肉丝", dinner: "黑米粥 + 蒸粗粮", snack: "葡萄"
-    }
+      keyNutrients: ["维生素K", "长效能量"],
+      recommendedFoods: [{ name: "西兰花", benefit: "止血机制", icon: "🥦" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "牛奶麦片粥", desc: "持久饱腹", icon: "🥣" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "西兰花炒腰果", desc: "健智补脑", icon: "🥦" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "黑米汤面", desc: "温养易吸收", icon: "🍜" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "奇异果", desc: "丰富养分", icon: "🥝" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "核桃", desc: "补脑助发育", icon: "🥜" }] }
+      ]
+    },
+    exercises: [
+      { name: "极缓散步", type: "有氧", desc: "保持活动量。", stats: [{ label: "距离", value: "800m" }, { label: "时长", value: "15min" }], icon: "🐢" },
+      { name: "蝶式坐姿", type: "分娩准备", desc: "由于韧带松弛需格外小心。", icon: "🦋" }
+    ]
   },
   {
     month: 10,
-    symptoms: [
-      { title: "假性宫缩", reason: "身体在为分娩进行“演习”。", tips: ["注意临产预兆", "准备待产包"] }
-    ],
+    symptoms: [{ title: "临近分娩", reason: "胎头入盆准备。", tips: ["待产包准备"] }],
     diet: {
-      keyNutrients: ["能量储备", "维生素"],
-      recommendedFoods: [{ name: "蜂蜜", benefit: "润肠能量", icon: "🍯" }, { name: "巧克力", benefit: "紧急能量", icon: "🍫" }],
-      breakfast: "粥配肉松 + 蛋", lunch: "白灼心菜 + 红烧鱼", dinner: "番茄蛋汤面", snack: "巧克力 (少量)"
-    }
+      keyNutrients: ["瞬间能量", "储备营养"],
+      recommendedFoods: [{ name: "蜂蜜", benefit: "体力储备", icon: "🍯" }],
+      meals: [
+        { type: "早餐", icon: "🌅", items: [{ name: "肉松粥蛋", desc: "优质储备", icon: "🥣" }] },
+        { type: "午餐", icon: "🌤️", items: [{ name: "红烧鲫鱼", desc: "哺乳准备", icon: "🐟" }] },
+        { type: "晚餐", icon: "🌙", items: [{ name: "清汤挂面", desc: "极致清淡", icon: "🍜" }] },
+        { type: "茶点", icon: "🍵", items: [{ name: "黑巧克力", desc: "临产动能", icon: "🍫" }] },
+        { type: "零食", icon: "🍪", items: [{ name: "蜂蜜水", desc: "润道舒缓", icon: "🍵" }] }
+      ]
+    },
+    exercises: [
+      { name: "室内扶墙走", type: "有氧", desc: "随时准备分娩。", stats: [{ label: "频率", value: "按需" }, { label: "时长", value: "10min" }], icon: "🏠" },
+      { name: "助产球摇摆", type: "放松", desc: "减轻宫缩痛感。", icon: "🎈" }
+    ]
   }
 ];
 
@@ -215,7 +260,7 @@ const SectionTitle = ({ title, color = "primary" }: { title: string, color?: str
 
 export default function App() {
   const [activeMonth, setActiveMonth] = useState(1);
-  const [activeTab, setActiveTab] = useState<'encyclopedia' | 'menu'>('encyclopedia');
+  const [activeTab, setActiveTab] = useState<'encyclopedia' | 'menu' | 'exercise'>('encyclopedia');
 
   const currentMonthData = PREGNANCY_DATA.find(d => d.month === activeMonth) || PREGNANCY_DATA[0];
 
@@ -228,6 +273,7 @@ export default function App() {
         <div className="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
           {PREGNANCY_DATA.map((data) => (
             <button
+              id={`month-${data.month}`}
               key={data.month}
               onClick={() => setActiveMonth(data.month)}
               className={`flex-shrink-0 w-12 h-12 rounded-xl flex flex-col items-center justify-center transition-all duration-200 border ${
@@ -247,6 +293,7 @@ export default function App() {
       <div className="px-5 py-4">
         <div className="bg-white/60 p-1 rounded-xl flex gap-1 border border-border">
           <button 
+            id="tab-encyclopedia"
             onClick={() => setActiveTab('encyclopedia')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
               activeTab === 'encyclopedia' ? 'bg-white text-primary shadow-sm' : 'text-text-light'
@@ -255,6 +302,7 @@ export default function App() {
             <BookOpen size={14} /> 身体百科
           </button>
           <button 
+            id="tab-menu"
             onClick={() => setActiveTab('menu')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
               activeTab === 'menu' ? 'bg-white text-primary shadow-sm' : 'text-text-light'
@@ -262,10 +310,19 @@ export default function App() {
           >
             <Utensils size={14} /> 推荐菜单
           </button>
+          <button 
+            id="tab-exercise"
+            onClick={() => setActiveTab('exercise')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'exercise' ? 'bg-white text-primary shadow-sm' : 'text-text-light'
+            }`}
+          >
+            <Dumbbell size={14} /> 适度运动
+          </button>
         </div>
       </div>
 
-      <main className="px-5 flex-1">
+      <main className="px-5 flex-1 pb-10">
         <AnimatePresence mode="wait">
           {activeTab === 'encyclopedia' ? (
             <motion.div
@@ -278,9 +335,9 @@ export default function App() {
             >
               <SectionTitle title={`第 ${activeMonth} 个月：百科内容`} />
 
-              {/* Tailored message for nausea moved here */}
               {activeMonth === 1 && (
                 <motion.div 
+                  id="nausea-tip"
                   initial={{ opacity: 0, scale: 0.9 }} 
                   animate={{ opacity: 1, scale: 1 }}
                   className="p-4 bg-yellow-50 rounded-2xl border border-yellow-200 flex gap-3 items-center mb-4"
@@ -295,7 +352,7 @@ export default function App() {
               )}
               
               {currentMonthData.symptoms.map((symptom, idx) => (
-                <div key={idx} className="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-border">
+                <div id={`symptom-${idx}`} key={idx} className="bg-white rounded-2xl p-4 shadow-[0_2px_8px_rgba(0,0,0,0.03)] border border-border">
                   <div className="mb-2">
                     <span className="bg-[#FFF0F3] text-primary px-2 py-0.5 rounded text-[11px] font-medium mb-1 inline-block">
                       症状解析
@@ -322,7 +379,7 @@ export default function App() {
                 </div>
               ))}
             </motion.div>
-          ) : (
+          ) : activeTab === 'menu' ? (
             <motion.div
               key={`menu-${activeMonth}`}
               initial={{ opacity: 0, scale: 0.98 }}
@@ -333,19 +390,17 @@ export default function App() {
             >
               <SectionTitle title={`第 ${activeMonth} 个月：推荐食谱`} color="secondary" />
 
-              {/* Major Nutrients Tags */}
               <div className="flex flex-wrap gap-2 mb-2">
                 {currentMonthData.diet.keyNutrients.map((n, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold rounded">
+                  <span id={`nutrient-${i}`} key={i} className="px-2 py-0.5 bg-secondary/10 text-secondary text-[10px] font-bold rounded">
                     #{n}
                   </span>
                 ))}
               </div>
 
-              {/* Recommended Foods Grid */}
               <div className="grid grid-cols-2 gap-3 pb-2">
                 {currentMonthData.diet.recommendedFoods.map((food, i) => (
-                  <div key={i} className="bg-white p-3 rounded-xl border border-border shadow-sm flex items-center gap-3">
+                  <div id={`food-recommend-${i}`} key={i} className="bg-white p-3 rounded-xl border border-border shadow-sm flex items-center gap-3">
                     <div className="text-2xl bg-bg-app size-10 flex items-center justify-center rounded-lg">{food.icon}</div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-bold text-text-main truncate">{food.name}</p>
@@ -355,64 +410,129 @@ export default function App() {
                 ))}
               </div>
 
-              {/* Daily Menu List */}
-              <div className="bg-white rounded-2xl overflow-hidden border border-border shadow-sm">
-                <div className="bg-secondary/10 px-4 py-3 border-b border-border flex items-center justify-between">
-                  <span className="text-secondary font-bold text-[14px]">每日营养餐单</span>
-                  <Utensils className="text-secondary size-4" />
-                </div>
-                <div className="p-4 space-y-4">
-                  {[
-                    { label: "早餐", value: currentMonthData.diet.breakfast, icon: "🌅" },
-                    { label: "午餐", value: currentMonthData.diet.lunch, icon: "🌤️" },
-                    { label: "茶点", value: currentMonthData.diet.snack, icon: "🍵" },
-                    { label: "晚餐", value: currentMonthData.diet.dinner, icon: "🌙" }
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <div className="text-xl mt-0.5">{item.icon}</div>
+              <div className="space-y-4">
+                {currentMonthData.diet.meals.map((meal, mealIdx) => (
+                  <div id={`meal-card-${mealIdx}`} key={mealIdx} className="bg-white rounded-2xl overflow-hidden border border-border shadow-sm">
+                    <div className="bg-secondary/10 px-4 py-3 border-b border-border flex items-center gap-3">
+                      <span className="text-xl">{meal.icon}</span>
+                      <span className="text-secondary font-bold text-[14px]">{meal.type}推荐</span>
+                    </div>
+                    <div className="p-4 space-y-4">
+                      {meal.items.map((item, i) => (
+                        <div key={i} className="flex items-center gap-4">
+                          <div className="size-12 bg-bg-app rounded-xl flex items-center justify-center text-2xl shadow-inner">
+                            {item.icon}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-[14px] font-bold text-text-main">{item.name}</h4>
+                            <p className="text-[11px] text-text-light">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={`exercise-${activeMonth}`}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="space-y-4"
+            >
+              <SectionTitle title={`第 ${activeMonth} 个月：运动建议`} />
+              
+              <div className="grid grid-cols-1 gap-4">
+                {currentMonthData.exercises.map((ex, i) => (
+                  <div id={`exercise-card-${i}`} key={i} className="bg-white rounded-2xl p-5 border border-border shadow-sm flex flex-col gap-3">
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl bg-bg-app size-14 flex items-center justify-center rounded-2xl shadow-inner">
+                        {ex.icon}
+                      </div>
                       <div className="flex-1">
-                        <p className="text-[11px] font-bold text-secondary mb-0.5">{item.label}</p>
-                        <p className="text-[13px] text-text-main leading-tight">{item.value}</p>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <h3 className="text-[16px] font-bold text-text-main">{ex.name}</h3>
+                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
+                            {ex.type}
+                          </span>
+                        </div>
+                        <p className="text-[12px] text-text-light leading-snug">{ex.desc}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    
+                    {ex.stats && ex.stats.length > 0 && (
+                      <div className="flex gap-2 pt-2 border-t border-border mt-1">
+                        {ex.stats.map((stat, sIdx) => (
+                          <div key={sIdx} className="flex-1 bg-bg-app p-2 rounded-xl text-center">
+                            <p className="text-[9px] text-text-light mb-0.5 uppercase tracking-wider">{stat.label}</p>
+                            <p className="text-[12px] font-bold text-text-main">{stat.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div id="exercise-caution" className="bg-yellow-50 p-4 rounded-2xl border border-yellow-100 flex gap-3 items-start mt-2">
+                 <AlertCircle className="size-5 text-yellow-500 shrink-0 mt-0.5" />
+                 <p className="text-[11px] text-yellow-800 leading-relaxed">
+                   <b>运动注意：</b>运动前后记得补充水分，避免在密闭闷热环境下运动。
+                   如出现头晕、气促、腹痛或阴道出血，请立即停止并咨询医生。
+                 </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Global Reminder Card */}
-        <div className="mt-4 mb-6 p-4 bg-white rounded-2xl border border-border shadow-sm">
+        <div id="footer-reminder" className="mt-4 mb-6 p-4 bg-white rounded-2xl border border-border shadow-sm">
           <SectionTitle title="温馨提醒" color="primary" />
           <p className="text-[12px] text-text-main leading-relaxed">
-             少食多餐，避免油腻，保持愉快心情。如果呕吐严重或持续不适，请务必咨询专业医生。
+             少食多餐，避免油腻，保持愉快心情。孕期一切活动请以身体舒适为准。
           </p>
         </div>
       </main>
 
       {/* Footer Navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-5 h-[60px] flex justify-between items-center z-50">
+      <nav id="footer-nav" className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-5 h-[60px] flex justify-between items-center z-50">
         {[
-          { icon: Heart, label: "首页", active: true },
-          { icon: BookOpen, label: "百科", active: false },
-          { icon: Utensils, label: "食谱", active: false },
-          { icon: Info, label: "我的", active: false }
+          { icon: Heart, label: "首页", id: 'home' },
+          { icon: BookOpen, label: "百科", id: 'encyclopedia' },
+          { icon: Utensils, label: "食谱", id: 'menu' },
+          { icon: Dumbbell, label: "运动", id: 'exercise' },
+          { icon: Info, label: "我的", id: 'profile' }
         ].map((item, i) => (
           <button 
+            id={`nav-${item.id}`}
             key={i} 
-            className={`flex flex-col items-center gap-1 flex-1 ${item.active ? 'text-primary' : 'text-text-light'}`}
+            onClick={() => {
+              if (item.id === 'home') { setActiveTab('encyclopedia'); setActiveMonth(1); }
+              if (item.id === 'encyclopedia') setActiveTab('encyclopedia');
+              if (item.id === 'menu') setActiveTab('menu');
+              if (item.id === 'exercise') setActiveTab('exercise');
+            }}
+            className={`flex flex-col items-center gap-1 flex-1 transition-colors ${
+              (activeTab === item.id) || (item.id === 'home' && activeTab === 'encyclopedia' && activeMonth === 1)
+              ? 'text-primary' : 'text-text-light'
+            }`}
           >
-            <div className={`size-5 flex items-center justify-center mb-0.5 ${item.active ? 'bg-primary/10 rounded-full scale-110' : ''}`}>
-              <item.icon className="size-4" strokeWidth={item.active ? 2.5 : 2} />
+            <div className={`size-5 flex items-center justify-center mb-0.5 ${
+              (activeTab === item.id) || (item.id === 'home' && activeTab === 'encyclopedia' && activeMonth === 1)
+               ? 'bg-primary/10 rounded-full scale-110' : ''
+            }`}>
+              <item.icon className="size-4" strokeWidth={activeTab === item.id ? 2.5 : 2} />
             </div>
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
         ))}
       </nav>
 
-      {/* Fixed help button */}
+      {/* Help button */}
       <button 
+        id="btn-help"
         className="fixed bottom-24 right-6 size-14 bg-primary rounded-full shadow-lg shadow-primary/20 flex items-center justify-center text-white active:scale-95 transition-transform z-40"
       >
         <ChevronRight className="rotate-[-90deg]" />
@@ -423,13 +543,8 @@ export default function App() {
           display: none;
         }
         .no-scrollbar {
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
-        }
-        @supports (padding: env(safe-area-inset-bottom)) {
-          .safe-area-bottom {
-            padding-bottom: calc(12px + env(safe-area-inset-bottom));
-          }
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>
